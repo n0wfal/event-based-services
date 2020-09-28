@@ -112,7 +112,7 @@ This is an example of how to list things you need to use the software and how to
 ```sh
 git clone https://github.com/n0wfal/event-based-services.git
 ```
-2. Install NPM packages
+2. Starting the services
 ```sh
 cd event-based-services && docker-compose up -d
 ```
