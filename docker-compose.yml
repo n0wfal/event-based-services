@@ -1,0 +1,114 @@
+version: '3.4'
+
+services:
+  user-db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports: 
+      - 27017:27017
+    expose: 
+      - 27017
+    volumes: 
+      - user-db:/data/db
+  product-db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports: 
+      - 27018:27017
+    expose: 
+      - 27017
+    volumes: 
+      - product-db:/data/db
+  order-db:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports: 
+      - 27019:27017
+    expose: 
+      - 27017
+    volumes: 
+      - order-db:/data/db
+  kafka:
+    image: spotify/kafka
+    ports:
+    - "2181:2181"
+    - "9092:9092"
+    hostname: kafka
+    container_name: kafka
+    environment:
+    - "ADVERTISED_HOST=kafka"
+    - "ADVERTISED_PORT=9092"
+    - "AUTO_CREATE_TOPICS=true"
+    command: >
+        bash -c
+        "(sleep 15s &&
+        /opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh
+        --create
+        --zookeeper
+        localhost:2181 --replication-factor 1 --partitions 1
+        --topic user &) && 
+        (sleep 15s &&
+        /opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh
+        --create
+        --zookeeper
+        localhost:2181 --replication-factor 1 --partitions 1
+        --topic product &) &&
+        (sleep 15s &&
+        /opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh
+        --create
+        --zookeeper
+        localhost:2181 --replication-factor 1 --partitions 1
+        --topic order &) &&
+        (supervisord -n)"
+  user:
+    image: user
+    container_name: user-service
+    build: ./services/user
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3001:3000
+    volumes: 
+      - "/home/nfl/Tutorials/microservice/services/user:/usr/src/app"
+    depends_on: 
+      - user-db
+      - kafka
+  product:
+    image: product
+    container_name: product-service
+    build: ./services/product
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3002:3000
+    volumes: 
+      - "/home/nfl/Tutorials/microservice/services/product:/usr/src/app"
+    depends_on: 
+      - product-db
+      - kafka
+  order:
+    image: order
+    container_name: order-service
+    build: ./services/order
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3003:3000
+    volumes: 
+      - "/home/nfl/Tutorials/microservice/services/order:/usr/src/app"
+    depends_on: 
+      - order-db
+      - kafka
+volumes:
+  user-db:
+  product-db:
+  order-db:

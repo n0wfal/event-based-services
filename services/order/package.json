@@ -1,0 +1,33 @@
+{
+  "name": "order",
+  "version": "0.0.1",
+  "description": "Orders microservice",
+  "keywords": [
+    "order",
+    "service",
+    "micro"
+  ],
+  "author": "n0wfal <nowfaln@celestialsys.con>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/order.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "start": "nodemon ./src/index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "kafkajs": "^1.13.0",
+    "mongoose": "^5.10.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
